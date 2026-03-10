@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
+use Ramsey\Uuid\Guid\Fields;
 
 class AuthController extends Controller
 {
@@ -32,5 +33,29 @@ class AuthController extends Controller
             'user' => $user,
             'token' => $token,            
         ],201);
+    }
+
+    public function login(Request $request)
+    {
+        $fields = $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required'
+        ]);
+
+        $user = User::where('email', $fields['email'])->first();
+
+        if (!$user || !Hash::check($fields['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Bad credential'
+            ], 401);
+        }
+
+
+        $token = $user->createToken($user->name)->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token
+        ], 200);
     }
 }
