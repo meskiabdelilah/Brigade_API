@@ -18,6 +18,6 @@ class Category extends Model
 
     public function plats()
     {
-        return $this->belongsToMany(Plat::class);
+        return $this->hasMany(Plat::class);
     }
 }
