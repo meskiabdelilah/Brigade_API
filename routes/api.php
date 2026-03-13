@@ -21,16 +21,17 @@ Route::middleware('auth:sanctum')->group(function () {
      */
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::post('/categories', [CategoryController::class, 'store']);
-    Route::put('/categories/{id}', [CategoryController::class, 'update']);
-    Route::get('/categories/{id}', [CategoryController::class, 'show']);
-    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
-
+    Route::put('/categories/{category}', [CategoryController::class, 'update']);
+    Route::get('/categories/{category}', [CategoryController::class, 'show']);
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+    Route::post('/categories/{category}/plats', [CategoryController::class, 'associatePlats']);
+    Route::get('/categories/{category}/plats', [CategoryController::class, 'getPlatsByCategory']);
     /**
      * CRUD des Plats
      */
     Route::get('/plats', [PlatController::class, 'index']);
     Route::post('/plats', [PlatController::class, 'store']);
-    Route::put('/plats/{id}', [PlatController::class, 'update']);
-    Route::get('/plats/{id}', [PlatController::class, 'show']);
-    Route::delete('/plats/{id}', [PlatController::class, 'destroy']);
+    Route::put('/plats/{plat}', [PlatController::class, 'update']);
+    Route::get('/plats/{plat}', [PlatController::class, 'show']);
+    Route::delete('/plats/{plat}', [PlatController::class, 'destroy']);
 });

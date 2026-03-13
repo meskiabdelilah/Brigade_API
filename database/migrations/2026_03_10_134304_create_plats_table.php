@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('plats', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->decimal('price', 8, 2); 
+            $table->decimal('price', 8, 2);
+            $table->string('photo')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('category_id')->nullable()->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

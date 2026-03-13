@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Plat;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 
 
 class PlatController extends Controller
@@ -17,24 +18,31 @@ class PlatController extends Controller
         return response()->json($plats);
     }
 
-    public function show(Request $request, $id)
+    public function show(Request $request, Plat $plat)
     {
-        $plat = $request->user()->plats()->findOrFail($id);
+        Gate::authorize('view', $plat);
+
         return response()->json($plat);
     }
 
     public function store(Request $request)
     {
-         $fields = $request->validate([
-            'name' => 
-                [
+        $fields = $request->validate([
+            'name' =>
+            [
                 'required',
                 'max:250',
                 'string',
                 Rule::unique('plats')->where('user_id', $request->user()->id)
-                ],
-            'price' => 'required'    
+            ],
+            'price' => 'required|numeric|min:0',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
         ]);
+
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('plats', 'public');
+            $fields['photo'] = $path;
+        }
 
         $plat = $request->user()->plats()->create($fields);
 
@@ -45,19 +53,20 @@ class PlatController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Plat $plat)
     {
+        Gate::authorize('update', $plat);
         $fields = $request->validate([
-            'name' => 
-                [
+            'name' =>
+            [
                 'required',
                 'max:250',
                 'string',
-                Rule::unique('plats')->where('user_id', $request->user()->id)->ignore($id)
-                ],
-            'price' => 'required'
+                Rule::unique('plats')->where('user_id', $request->user()->id)->ignore($plat)
+            ],
+            'price' => 'required|numeric|min:0'
         ]);
-        $plat = $request->user()->plats()->findOrFail($id);
+
         $plat->update($fields);
 
         return response()->json([
@@ -66,10 +75,12 @@ class PlatController extends Controller
         ], 200);
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, Plat $plat)
     {
-        $plat = $request->user()->plats()->findOrFail($id);
+        Gate::authorize('delete', $plat);
+
         $plat->delete();
+
         return response()->json([
             'message' => 'Delete successfully',
             'data' => $plat
